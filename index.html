@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>9x9 Slide Puzzle - My Favorite Monster Hunter</title>
     <meta name="description" content="เล่นเกมตัวต่อเลื่อน Slide Puzzle ขนาด 9x9 ช่อง พร้อมภาพ Rathalos Monster Hunter Edition">
     <meta name="theme-color" content="#0c0f14">
@@ -31,7 +31,7 @@
             </div>
 
             <!-- Settings: Grid Size -->
-            <div class="topbar-section">
+            <div class="topbar-section topbar-grid-section">
                 <span class="topbar-label">ขนาดตาราง</span>
                 <div class="grid-selector-group" id="grid-size-selector">
                     <button class="grid-pill" data-size="3">3×3</button>
@@ -45,7 +45,7 @@
             </div>
 
             <!-- Settings: Image -->
-            <div class="topbar-section">
+            <div class="topbar-section topbar-image-section">
                 <span class="topbar-label">รูปภาพ</span>
                 <div class="image-options-row">
                     <div class="img-choice-sm active" id="choice-rathalos" title="Rathalos (ค่าเริ่มต้น)">
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Settings: Visual Aids + Sound -->
-            <div class="topbar-section">
+            <div class="topbar-section topbar-tools-section">
                 <span class="topbar-label">เครื่องมือ</span>
                 <div class="quick-tools">
                     <button id="btn-sound-toggle" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
@@ -83,17 +83,19 @@
 
                 <!-- Stats Bar -->
                 <div class="dashboard-bar">
-                    <div class="stat-item">
-                        <span class="stat-label">Moves</span>
-                        <span id="move-counter" class="stat-value">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Time</span>
-                        <span id="timer-display" class="stat-value gold">00:00</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Best</span>
-                        <span id="best-display" class="stat-value">--:--</span>
+                    <div class="stat-group">
+                        <div class="stat-item">
+                            <span class="stat-label">Moves</span>
+                            <span id="move-counter" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Time</span>
+                            <span id="timer-display" class="stat-value gold">00:00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Best</span>
+                            <span id="best-display" class="stat-value">--:--</span>
+                        </div>
                     </div>
                     <!-- Action buttons inline in stats bar -->
                     <div class="stat-actions">
@@ -111,9 +113,8 @@
 
                 <!-- Key Guide -->
                 <div class="guide-card">
-                    💡 คลิกชิ้นส่วนในแถว/คอลัมน์เดียวกับช่องว่าง •
-                    <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
-                    • Ctrl+Z = Undo
+                    <span class="guide-desktop">💡 คลิกชิ้นส่วนในแถว/คอลัมน์เดียวกับช่องว่าง • <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> • Ctrl+Z = Undo</span>
+                    <span class="guide-mobile">👆 แตะชิ้นส่วนในแถว/หลักเดียวกับช่องว่างเพื่อเลื่อน หรือ ปัด (Swipe) หน้าจอ</span>
                 </div>
             </div>
 
