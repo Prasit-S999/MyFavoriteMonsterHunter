@@ -457,7 +457,7 @@ body {
 .coll-card {
     position: relative;
     border-radius: var(--r-md);
-    overflow: hidden;
+    overflow: clip;
     border: 2px solid transparent;
     background: rgba(255,255,255,0.04);
     cursor: pointer;
@@ -504,6 +504,7 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: inherit;
     transition: transform 0.2s ease;
 }
 
@@ -522,6 +523,8 @@ body {
     align-items: flex-end;
     justify-content: space-between;
     gap: 0.3rem;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
 }
 
 .coll-card-name {
