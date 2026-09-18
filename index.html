@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>9x9 Slide Puzzle - My Favorite Monster Hunter</title>
+    <meta name="description" content="เล่นเกมตัวต่อเลื่อน Slide Puzzle ขนาด 9x9 ช่อง พร้อมภาพ Rathalos Monster Hunter Edition">
+    <meta name="theme-color" content="#0c0f14">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="badge-mode-corner">
+
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="app-container">
+
+        <!-- ══════════════════════════════════════
+             TOP CONTROL BAR: Logo + Settings
+        ══════════════════════════════════════ -->
+        <header class="top-bar">
+
+            <!-- Logo Block -->
+            <div class="logo-block">
+                <img src="assets/logo.png" alt="My Favorite Monster Hunter" class="logo-img">
+                <div class="logo-text">
+                    <span class="logo-title">SLIDE PUZZLE</span>
+                    <span class="logo-sub" id="header-grid-badge">9×9 &bull; 80 PIECES</span>
+                </div>
+            </div>
+
+            <!-- Settings: Grid Size -->
+            <div class="topbar-section">
+                <span class="topbar-label">ขนาดตาราง</span>
+                <div class="grid-selector-group" id="grid-size-selector">
+                    <button class="grid-pill" data-size="3">3×3</button>
+                    <button class="grid-pill" data-size="4">4×4</button>
+                    <button class="grid-pill" data-size="5">5×5</button>
+                    <button class="grid-pill" data-size="6">6×6</button>
+                    <button class="grid-pill" data-size="7">7×7</button>
+                    <button class="grid-pill" data-size="8">8×8</button>
+                    <button class="grid-pill active" data-size="9">9×9</button>
+                </div>
+            </div>
+
+            <!-- Settings: Image -->
+            <div class="topbar-section">
+                <span class="topbar-label">รูปภาพ</span>
+                <div class="image-options-row">
+                    <div class="img-choice-sm active" id="choice-rathalos" title="Rathalos (ค่าเริ่มต้น)">
+                        <img src="assets/rathalos.jpg" alt="Rathalos">
+                    </div>
+                    <div class="img-choice-sm img-choice-numbers" id="choice-numbers" title="โหมดตัวเลข">123</div>
+                    <button class="btn-collection" id="btn-open-collection" title="คลังรูปภาพ">
+                        <span class="coll-icon">📦</span>
+                        <span class="coll-label">Collection</span>
+                        <span class="coll-count" id="coll-count-badge" style="display:none;">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings: Visual Aids + Sound -->
+            <div class="topbar-section">
+                <span class="topbar-label">เครื่องมือ</span>
+                <div class="quick-tools">
+                    <button id="btn-sound-toggle" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
+                    <button id="btn-badge-toggle" class="icon-btn active" title="ตัวเลขกำกับ">🔢</button>
+                    <button id="btn-ghost-toggle" class="icon-btn" title="เงาภาพช่วย">👁️</button>
+                </div>
+            </div>
+
+        </header>
+
+        <!-- ══════════════════════════════════════
+             MAIN AREA: 2 Columns
+             Left = Game Board | Right = Reference
+        ══════════════════════════════════════ -->
+        <div class="main-columns">
+
+            <!-- ══ LEFT: Game Zone ══ -->
+            <div class="col-game">
+
+                <!-- Stats Bar -->
+                <div class="dashboard-bar">
+                    <div class="stat-item">
+                        <span class="stat-label">Moves</span>
+                        <span id="move-counter" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Time</span>
+                        <span id="timer-display" class="stat-value gold">00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Best</span>
+                        <span id="best-display" class="stat-value">--:--</span>
+                    </div>
+                    <!-- Action buttons inline in stats bar -->
+                    <div class="stat-actions">
+                        <button id="btn-shuffle" class="btn-primary-sm">🔀 Shuffle</button>
+                        <button id="btn-undo" class="btn-secondary-sm" disabled>↩️ Undo</button>
+                        <button id="btn-solve-demo" class="btn-secondary-sm">⭐ Reset</button>
+                    </div>
+                </div>
+
+                <!-- Puzzle Board -->
+                <div class="board-wrapper">
+                    <div id="puzzle-board" class="puzzle-board" style="--grid-size: 9;"></div>
+                    <div id="ghost-overlay" class="ghost-overlay"></div>
+                </div>
+
+                <!-- Key Guide -->
+                <div class="guide-card">
+                    💡 คลิกชิ้นส่วนในแถว/คอลัมน์เดียวกับช่องว่าง •
+                    <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+                    • Ctrl+Z = Undo
+                </div>
+            </div>
+
+            <!-- ══ RIGHT: Reference Image ══ -->
+            <div class="col-reference">
+                <div class="ref-panel">
+                    <div class="ref-panel-header">
+                        <div class="ref-title-group">
+                            <span class="ref-title">🖼️ ภาพต้นฉบับ</span>
+                            <span class="ref-sub">Original Reference</span>
+                        </div>
+                        <span class="ref-badge-full">✓ แสดงเต็มรูป</span>
+                    </div>
+
+                    <div class="ref-body">
+                        <div class="ref-image-box" id="ref-image-box" title="คลิกเพื่อขยายดูรูปเต็ม">
+                            <img id="preview-thumbnail" class="ref-image" src="assets/rathalos.jpg" alt="Original Reference Rathalos">
+                            <div id="ref-grid-overlay" class="ref-grid-overlay"></div>
+                        </div>
+                    </div>
+
+                    <div class="ref-footer">
+                        <button id="btn-toggle-ref-grid" class="ref-tool-btn" title="เปิด/ปิดเส้นตารางและหมายเลขบนภาพต้นฉบับ">
+                            <span class="tool-icon">📐</span>
+                            <span class="tool-text" id="ref-grid-btn-text">เส้นตาราง 9×9</span>
+                        </button>
+                        <button id="btn-zoom-ref" class="ref-tool-btn" title="ขยายรูปเต็มจอ">
+                            <span class="tool-icon">🔍</span>
+                            <span class="tool-text">ขยายเต็มจอ</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end main-columns -->
+    </div><!-- end app-container -->
+
+    <!-- ══════════════════════════════════════
+         COLLECTION MODAL: Browse & Manage Images
+    ══════════════════════════════════════ -->
+    <div id="collection-modal" class="coll-modal-backdrop">
+        <div class="coll-modal-card">
+            <!-- Header -->
+            <div class="coll-modal-header">
+                <div class="coll-header-left">
+                    <span class="coll-modal-icon">📦</span>
+                    <div>
+                        <div class="coll-modal-title">คลังรูปภาพ</div>
+                        <div class="coll-modal-sub">Image Collection</div>
+                    </div>
+                </div>
+                <div class="coll-header-actions">
+                    <label class="btn-coll-upload" title="เพิ่มรูปภาพใหม่">
+                        <span>➕ เพิ่มรูป</span>
+                        <input type="file" id="custom-image-input" accept="image/*" style="display:none;">
+                    </label>
+                    <button id="btn-close-collection" class="btn-coll-close" title="ปิด">✕</button>
+                </div>
+            </div>
+
+            <!-- Collection Grid -->
+            <div class="coll-grid-area" id="coll-grid-area" style="display:none;">
+                <!-- Cards populated by JS -->
+            </div>
+
+            <!-- Empty State (shown when no images) -->
+            <div class="coll-empty-state" id="coll-empty-state">
+                <div class="coll-empty-icon">🖼️</div>
+                <div class="coll-empty-text">ยังไม่มีรูปในคลัง</div>
+                <div class="coll-empty-sub">กด "เพิ่มรูป" เพื่ออัปโหลดรูปแรกของคุณ</div>
+            </div>
+
+            <!-- Footer info -->
+            <div class="coll-modal-footer">
+                <span id="coll-footer-count" class="coll-footer-text">0 รูป</span>
+                <span class="coll-footer-hint">💡 คลิกที่รูปเพื่อเล่น • 🗑 เพื่อลบ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-icon">🏆</div>
+            <h2 class="modal-title">QUEST COMPLETED!</h2>
+            <p class="modal-desc">ยินดีด้วย! คุณพิชิตเกม Slide Puzzle สำเร็จแล้ว</p>
+            <div class="modal-stats-box">
+                <div>
+                    <div id="victory-moves" class="modal-stat-val">0</div>
+                    <div class="modal-stat-lbl">Total Moves</div>
+                </div>
+                <div>
+                    <div id="victory-time" class="modal-stat-val">00:00</div>
+                    <div class="modal-stat-lbl">Time Elapsed</div>
+                </div>
+            </div>
+            <button id="btn-modal-restart" class="btn-primary" style="width:100%;">🔀 เล่นใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+    <!-- Full Image Modal -->
+    <div id="image-modal" class="image-modal-backdrop" title="คลิกที่ใดก็ได้เพื่อปิด">
+        <img id="image-modal-img" class="image-modal-img" src="assets/rathalos.jpg" alt="Full Preview">
+        <div class="image-modal-hint">✕ คลิกที่ใดก็ได้เพื่อปิดรูปภาพ</div>
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
