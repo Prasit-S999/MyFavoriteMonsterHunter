@@ -465,8 +465,23 @@
 
     const COLLECTION_KEY = 'slide_puzzle_collection_v1';
 
-    // The ID of the currently active collection item (null = built-in)
-    let activeCollectionId = null;
+    // Built-in Collection: 11 default Monster Hunter images available to all users
+    const BUILTIN_COLLECTION = [
+        { id: 'builtin-rathalos',   name: 'Rathalos',        src: 'assets/rathalos.jpg',                                                              builtin: true },
+        { id: 'builtin-monster1',   name: 'Monster 1',       src: 'assets/images.jpg',                                                                builtin: true },
+        { id: 'builtin-monster2',   name: 'Monster 2',       src: 'assets/images (1).jpg',                                                            builtin: true },
+        { id: 'builtin-monster3',   name: 'Monster 3',       src: 'assets/images (2).jpg',                                                            builtin: true },
+        { id: 'builtin-monster4',   name: 'Monster 4',       src: 'assets/images (3).jpg',                                                            builtin: true },
+        { id: 'builtin-monster-art',name: 'Monster Art',     src: 'assets/bfd9c1b134a28437a01825b9b8d10a44.png',                                     builtin: true },
+        { id: 'builtin-icon1',      name: 'Monster Icon 1',  src: 'assets/Gubw_NubEAIGqLv.webp',                                                      builtin: true },
+        { id: 'builtin-icon2',      name: 'Monster Icon 2',  src: 'assets/GutNRXCboAUXl5K.webp',                                                      builtin: true },
+        { id: 'builtin-gogmazios',  name: 'Gogmazios',       src: 'assets/MHWA-Gogmazios_Icon.webp',                                                  builtin: true },
+        { id: 'builtin-fav-design', name: 'Favorite Design', src: 'assets/one-of-my-new-favorite-designs-one-of-my-new-favorite-v0-2f9y7hzgnyyd1.webp', builtin: true },
+        { id: 'builtin-blazing',    name: 'Blazing Dragon',  src: 'assets/third-uhd-mhw-icon-recreation-the-blazing-black-dragon-v0-avctvr9biz071.webp', builtin: true },
+    ];
+
+    // The ID of the currently active collection item (defaults to built-in Rathalos)
+    let activeCollectionId = 'builtin-rathalos';
 
     function loadCollection() {
         try {
@@ -495,12 +510,15 @@
     }
 
     function deleteFromCollection(id) {
+        // Built-in images cannot be deleted
+        if (BUILTIN_COLLECTION.some(b => b.id === id)) return;
+
         let items = loadCollection();
         items = items.filter(item => item.id !== id);
         saveCollection(items);
         // If we deleted the currently active image, switch back to Rathalos
         if (activeCollectionId === id) {
-            activeCollectionId = null;
+            activeCollectionId = 'builtin-rathalos';
             currentImage = 'assets/rathalos.jpg';
             isNumbersMode = false;
             choiceRathalos.classList.add('active');
@@ -511,14 +529,21 @@
     }
 
     function selectFromCollection(id) {
-        const items = loadCollection();
-        const item = items.find(i => i.id === id);
+        let item = BUILTIN_COLLECTION.find(i => i.id === id);
+        if (!item) {
+            const items = loadCollection();
+            item = items.find(i => i.id === id);
+        }
         if (!item) return;
 
         activeCollectionId = id;
-        currentImage = item.dataUrl;
+        currentImage = item.src || item.dataUrl;
         isNumbersMode = false;
-        choiceRathalos.classList.remove('active');
+        if (id === 'builtin-rathalos') {
+            choiceRathalos.classList.add('active');
+        } else {
+            choiceRathalos.classList.remove('active');
+        }
         choiceNumbers.classList.remove('active');
         updateGhostImage();
         renderBoard();
@@ -526,18 +551,15 @@
     }
 
     function updateCollectionBadge() {
-        const items = loadCollection();
+        const userItems = loadCollection();
+        const totalCount = BUILTIN_COLLECTION.length + userItems.length;
         const badge = document.getElementById('coll-count-badge');
         if (badge) {
-            if (items.length > 0) {
-                badge.textContent = items.length;
-                badge.style.display = '';
-            } else {
-                badge.style.display = 'none';
-            }
+            badge.textContent = totalCount;
+            badge.style.display = '';
         }
         const footer = document.getElementById('coll-footer-count');
-        if (footer) footer.textContent = `${items.length} รูป`;
+        if (footer) footer.textContent = `${totalCount} รูป`;
     }
 
     function renderCollectionModal() {
@@ -545,72 +567,110 @@
         const emptyState = document.getElementById('coll-empty-state');
         if (!gridArea) return;
 
-        const items = loadCollection();
-
         gridArea.innerHTML = '';
+        gridArea.style.display = '';
+        if (emptyState) emptyState.style.display = 'none';
 
-        if (items.length === 0) {
-            gridArea.style.display = 'none';
-            if (emptyState) emptyState.style.display = '';
-        } else {
-            gridArea.style.display = '';
-            if (emptyState) emptyState.style.display = 'none';
+        // 1. Built-in Collection Section
+        const builtinHeader = document.createElement('div');
+        builtinHeader.className = 'coll-section-header';
+        builtinHeader.textContent = '🏔 รูปพื้นฐาน';
+        gridArea.appendChild(builtinHeader);
 
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'coll-card' + (activeCollectionId === item.id ? ' selected' : '');
-                card.dataset.id = item.id;
+        BUILTIN_COLLECTION.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'coll-card builtin' + (activeCollectionId === item.id ? ' selected' : '');
+            card.dataset.id = item.id;
 
-                const img = document.createElement('img');
-                img.className = 'coll-card-img';
-                img.src = item.dataUrl;
-                img.alt = item.name;
-                img.loading = 'lazy';
+            const img = document.createElement('img');
+            img.className = 'coll-card-img';
+            img.src = item.src;
+            img.alt = item.name;
+            img.loading = 'lazy';
 
-                const overlay = document.createElement('div');
-                overlay.className = 'coll-card-overlay';
+            const overlay = document.createElement('div');
+            overlay.className = 'coll-card-overlay';
 
-                const nameEl = document.createElement('span');
-                nameEl.className = 'coll-card-name';
-                nameEl.textContent = item.name;
-                nameEl.title = item.name;
+            const nameEl = document.createElement('span');
+            nameEl.className = 'coll-card-name';
+            nameEl.textContent = item.name;
+            nameEl.title = item.name;
 
-                const delBtn = document.createElement('button');
-                delBtn.className = 'btn-coll-delete';
-                delBtn.title = 'ลบรูปนี้ออกจากคลัง';
-                delBtn.textContent = '🗑';
-                delBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (confirm(`ลบ "${item.name}" ออกจากคลังหรือไม่?`)) {
-                        deleteFromCollection(item.id);
-                        updateCollectionBadge();
-                        renderCollectionModal();
-                        if (window.soundCtrl) window.soundCtrl.playClick();
-                    }
-                });
+            overlay.appendChild(nameEl);
+            card.appendChild(img);
+            card.appendChild(overlay);
 
-                overlay.appendChild(nameEl);
-                overlay.appendChild(delBtn);
-                card.appendChild(img);
-                card.appendChild(overlay);
-
-                card.addEventListener('click', () => {
-                    selectFromCollection(item.id);
-                    renderCollectionModal(); // refresh selected state
-                    closeCollectionModal();
-                });
-
-                gridArea.appendChild(card);
+            card.addEventListener('click', () => {
+                selectFromCollection(item.id);
+                renderCollectionModal();
+                closeCollectionModal();
             });
 
-            // "Add more" card at the end
-            const addCard = document.createElement('label');
-            addCard.className = 'coll-add-card';
-            addCard.title = 'เพิ่มรูปภาพใหม่';
-            addCard.htmlFor = 'custom-image-input';
-            addCard.innerHTML = `<span class="coll-add-card-icon">➕</span><span>เพิ่มรูป</span>`;
-            gridArea.appendChild(addCard);
-        }
+            gridArea.appendChild(card);
+        });
+
+        // 2. User Uploads Section
+        const userItems = loadCollection();
+
+        const userHeader = document.createElement('div');
+        userHeader.className = 'coll-section-header';
+        userHeader.textContent = '👤 รูปของฉัน';
+        gridArea.appendChild(userHeader);
+
+        userItems.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'coll-card' + (activeCollectionId === item.id ? ' selected' : '');
+            card.dataset.id = item.id;
+
+            const img = document.createElement('img');
+            img.className = 'coll-card-img';
+            img.src = item.dataUrl;
+            img.alt = item.name;
+            img.loading = 'lazy';
+
+            const overlay = document.createElement('div');
+            overlay.className = 'coll-card-overlay';
+
+            const nameEl = document.createElement('span');
+            nameEl.className = 'coll-card-name';
+            nameEl.textContent = item.name;
+            nameEl.title = item.name;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-coll-delete';
+            delBtn.title = 'ลบรูปนี้ออกจากคลัง';
+            delBtn.textContent = '🗑';
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm(`ลบ "${item.name}" ออกจากคลังหรือไม่?`)) {
+                    deleteFromCollection(item.id);
+                    updateCollectionBadge();
+                    renderCollectionModal();
+                    if (window.soundCtrl) window.soundCtrl.playClick();
+                }
+            });
+
+            overlay.appendChild(nameEl);
+            overlay.appendChild(delBtn);
+            card.appendChild(img);
+            card.appendChild(overlay);
+
+            card.addEventListener('click', () => {
+                selectFromCollection(item.id);
+                renderCollectionModal();
+                closeCollectionModal();
+            });
+
+            gridArea.appendChild(card);
+        });
+
+        // "Add more" card at the end of User section
+        const addCard = document.createElement('label');
+        addCard.className = 'coll-add-card';
+        addCard.title = 'เพิ่มรูปภาพใหม่';
+        addCard.htmlFor = 'custom-image-input';
+        addCard.innerHTML = `<span class="coll-add-card-icon">➕</span><span>เพิ่มรูป</span>`;
+        gridArea.appendChild(addCard);
 
         updateCollectionBadge();
     }
@@ -736,7 +796,7 @@
 
         // Image Selection: Rathalos
         choiceRathalos.addEventListener('click', () => {
-            activeCollectionId = null;
+            activeCollectionId = 'builtin-rathalos';
             currentImage = 'assets/rathalos.jpg';
             isNumbersMode = false;
             choiceRathalos.classList.add('active');

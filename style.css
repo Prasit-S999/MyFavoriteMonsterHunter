@@ -649,6 +649,39 @@ body {
 }
 .coll-card.just-added { animation: coll-flash 0.6s ease; }
 
+/* Built-in & user collection section headers */
+.coll-section-header {
+    grid-column: 1 / -1;
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding: 0.45rem 0.2rem 0.2rem;
+    border-bottom: 1px solid var(--border-sub);
+    margin-top: 0.4rem;
+}
+
+.coll-section-header:first-child {
+    margin-top: 0;
+}
+
+/* Built-in card badge */
+.coll-card.builtin::before {
+    content: '⭐';
+    position: absolute;
+    top: 0.35rem;
+    left: 0.35rem;
+    font-size: 0.6rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1px 4px;
+    border-radius: 4px;
+    z-index: 4;
+    pointer-events: none;
+    line-height: 1.4;
+}
+
 /* Quick Tool Buttons */
 .quick-tools {
     display: flex;
