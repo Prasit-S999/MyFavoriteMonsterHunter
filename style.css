@@ -139,9 +139,10 @@ body {
 
 .logo-title {
     font-family: var(--font-h);
-    font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+    font-size: clamp(0.72rem, 1.15vw, 0.95rem);
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
     background: linear-gradient(135deg, #fff 30%, var(--gold-light) 70%, var(--gold) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1363,7 +1364,7 @@ body {
 @media (max-width: 480px) {
     .top-bar { padding: 0.5rem 0.7rem; }
     .logo-img { height: 40px; width: 40px; }
-    .logo-title { font-size: 0.82rem; }
+    .logo-title { font-size: 0.72rem; }
     .grid-pill { font-size: 0.72rem; padding: 0.18rem 0.42rem; }
     .stat-value { font-size: 1rem; }
     .btn-primary-sm, .btn-secondary-sm { font-size: 0.74rem; padding: 0.35rem 0.55rem; }
